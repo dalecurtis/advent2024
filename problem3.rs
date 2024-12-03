@@ -1,9 +1,9 @@
+// After cargo build, build with rustc -L target/debug/deps problem3.rs
+
 extern crate regex;
 
 use regex::Regex;
 use std::fs;
-
-// (?=(mul\(\d*,\d+\)))+'~
 
 fn main() {
     let contents = fs::read_to_string("input3.txt")
