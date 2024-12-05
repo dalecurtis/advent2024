@@ -2,10 +2,26 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 const PAD: char = 0xFF as char;
-const MATRIX1: [[char; 3]; 3] = [['S', PAD, 'S'], [PAD, 'A', PAD], ['M', PAD, 'M']];
-const MATRIX2: [[char; 3]; 3] = [['M', PAD, 'S'], [PAD, 'A', PAD], ['M', PAD, 'S']];
-const MATRIX3: [[char; 3]; 3] = [['M', PAD, 'M'], [PAD, 'A', PAD], ['S', PAD, 'S']];
-const MATRIX4: [[char; 3]; 3] = [['S', PAD, 'M'], [PAD, 'A', PAD], ['S', PAD, 'M']];
+const MATRIX1: [[char; 3]; 3] = [
+    ['S', PAD, 'S'], // rustfmt
+    [PAD, 'A', PAD],
+    ['M', PAD, 'M'],
+];
+const MATRIX2: [[char; 3]; 3] = [
+    ['M', PAD, 'S'], // rustfmt
+    [PAD, 'A', PAD],
+    ['M', PAD, 'S'],
+];
+const MATRIX3: [[char; 3]; 3] = [
+    ['M', PAD, 'M'], // rustfmt
+    [PAD, 'A', PAD],
+    ['S', PAD, 'S'],
+];
+const MATRIX4: [[char; 3]; 3] = [
+    ['S', PAD, 'M'], // rustfmt
+    [PAD, 'A', PAD],
+    ['S', PAD, 'M'],
+];
 
 const SOLUTION: [[u8; 3]; 3] = [
     [1, 0, 1], // rustfmt
