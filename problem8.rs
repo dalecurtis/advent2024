@@ -48,8 +48,8 @@ fn main() {
             let p1 = &combination[0];
             let p2 = &combination[1];
             let distance = Point {
-                x: (p1.x - p2.x),
-                y: (p1.y - p2.y),
+                x: p1.x - p2.x,
+                y: p1.y - p2.y,
             };
 
             let pos_antinode = Point {
@@ -74,8 +74,8 @@ fn main() {
             }
 
             let neg_antinode = Point {
-                x: p1.x - distance.x,
-                y: p1.y - distance.y,
+                x: p2.x - distance.x,
+                y: p2.y - distance.y,
             };
             if is_in_bounds(&neg_antinode, &extents) {
                 let mut next_antinode = neg_antinode.clone();
@@ -92,6 +92,16 @@ fn main() {
                         break;
                     }
                 }
+            }
+
+            let mid_antinode = Point {
+                x: p1.x - distance.x,
+                y: p1.y - distance.y,
+            };
+            if is_in_bounds(&mid_antinode, &extents) {
+                extended_antinodes.insert(mid_antinode.clone());
+                extended_antinodes.insert((*p1).clone());
+                extended_antinodes.insert((*p2).clone());
             }
         }
     }
