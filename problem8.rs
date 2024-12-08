@@ -47,6 +47,9 @@ fn main() {
         for combination in points.iter().combinations(2) {
             let p1 = &combination[0];
             let p2 = &combination[1];
+            extended_antinodes.insert((*p1).clone());
+            extended_antinodes.insert((*p2).clone());
+
             let distance = Point {
                 x: p1.x - p2.x,
                 y: p1.y - p2.y,
@@ -60,8 +63,6 @@ fn main() {
                 let mut next_antinode = pos_antinode.clone();
                 unique_antinodes.insert(pos_antinode);
                 extended_antinodes.insert(next_antinode.clone());
-                extended_antinodes.insert((*p1).clone());
-                extended_antinodes.insert((*p2).clone());
                 loop {
                     next_antinode.x += distance.x;
                     next_antinode.y += distance.y;
@@ -81,8 +82,6 @@ fn main() {
                 let mut next_antinode = neg_antinode.clone();
                 unique_antinodes.insert(neg_antinode);
                 extended_antinodes.insert(next_antinode.clone());
-                extended_antinodes.insert((*p1).clone());
-                extended_antinodes.insert((*p2).clone());
                 loop {
                     next_antinode.x -= distance.x;
                     next_antinode.y -= distance.y;
@@ -92,16 +91,6 @@ fn main() {
                         break;
                     }
                 }
-            }
-
-            let mid_antinode = Point {
-                x: p1.x - distance.x,
-                y: p1.y - distance.y,
-            };
-            if is_in_bounds(&mid_antinode, &extents) {
-                extended_antinodes.insert(mid_antinode.clone());
-                extended_antinodes.insert((*p1).clone());
-                extended_antinodes.insert((*p2).clone());
             }
         }
     }
