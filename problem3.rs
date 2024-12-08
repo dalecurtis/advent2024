@@ -1,4 +1,4 @@
-// After cargo build, build with rustc -L target/debug/deps problem3.rs
+// After cargo build --release, build with rustc -L target/release/deps problem3.rs
 
 extern crate regex;
 
