@@ -1,7 +1,6 @@
 extern crate pathfinding;
 
-use pathfinding::prelude::count_paths;
-use pathfinding::prelude::dfs;
+use pathfinding::prelude;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -61,32 +60,23 @@ fn main() {
         extents.y += 1;
     }
 
-    let mut all_paths = Vec::new();
     let mut total_path_count: usize = 0;
+    let mut total_score: usize = 0;
     for start_node in &start_points {
-        for end_node in &end_points {
-            let paths = dfs(
-                start_node.clone(),
-                |p| p.successors(&input),
-                |p| p == end_node,
-            );
-            match paths {
-                Some(paths) => {
-                    all_paths.push(paths);
-                    let path_count = count_paths(
-                        start_node.clone(),
-                        |p| p.successors(&input),
-                        |p| p == end_node,
-                    );
-                    total_path_count += path_count;
-                }
-                None => {}
-            };
+        for reachable_node in prelude::dfs_reach(start_node.clone(), |p| p.successors(&input)) {
+            if reachable_node.v == 9 {
+                total_score += 1;
+                let path_count = prelude::count_paths(
+                    start_node.clone(),
+                    |p| p.successors(&input),
+                    |p| *p == reachable_node,
+                );
+                total_path_count += path_count;
+            }
         }
     }
     println!(
-        "All paths: paths.len = {}, path_count={}",
-        all_paths.len(),
-        total_path_count
+        "All paths: total_score = {}, total_path_count={}",
+        total_score, total_path_count
     );
 }
