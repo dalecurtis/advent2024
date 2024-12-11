@@ -9,17 +9,16 @@ fn split_number(v: u64, num_digits: u32) -> (u64, u64) {
 }
 
 // Splits stones according to the rules. Sticks result in `cache`
-fn split_stone(v: u64, d: u8, max_d: u8, mut cache: &mut HashMap<u8, HashMap<u64, u64>>) -> u64 {
+fn split_stone(v: u64, d: u8, max_d: u8, mut cache: &mut HashMap<(u8, u64), u64>) -> u64 {
     if d >= max_d {
         return 1;
     }
 
     // Can't hold a cache entry while we pass it on below, so a scope block is used.
     {
-        let vc = cache.entry(d).or_insert(HashMap::new());
-        let sc = vc.get(&v);
-        if !sc.is_none() {
-            return *sc.unwrap();
+        let vc = cache.get(&(d, v));
+        if !vc.is_none() {
+            return *vc.unwrap();
         }
     }
 
@@ -37,7 +36,7 @@ fn split_stone(v: u64, d: u8, max_d: u8, mut cache: &mut HashMap<u8, HashMap<u64
         }
     }
 
-    cache.get_mut(&d).expect("fail").insert(v, result);
+    cache.insert((d, v), result);
     return result;
 }
 
@@ -58,10 +57,5 @@ fn main() {
         stone_count += split_stone(v, 0, BLINKS, &mut cache);
         println!("partial_count={}", stone_count);
     }
-    let mut cache_size = 0;
-    for (_, v) in cache {
-        cache_size += v.len();
-    }
-
-    println!("stones={}, cache_size={}", stone_count, cache_size);
+    println!("stones={}, cache_size={}", stone_count, cache.len());
 }
