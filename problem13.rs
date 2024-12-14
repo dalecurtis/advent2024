@@ -21,6 +21,9 @@ struct DEq {
 
 // Find solutions to a linear diophantine equations. Returns None if
 // no integer solutions exist.
+//
+// Post-solve edit for future reference: After seeing other solutions,
+// I should have used https://en.wikipedia.org/wiki/Cramer%27s_rule
 fn solve_deq(eq: &DEq, pad: i128) -> Option<(i128, i128)> {
     let sol_x = eq.sol_x + pad;
     let sol_y = eq.sol_y + pad;
