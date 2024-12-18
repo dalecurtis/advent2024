@@ -1,9 +1,10 @@
+extern crate binary_search;
 extern crate pathfinding;
 
-use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+use binary_search::{binary_search, Direction};
 use pathfinding::prelude;
 
 #[derive(Debug, Default, Clone, Hash, Eq, PartialEq)]
@@ -52,29 +53,17 @@ fn compute_dir(edge: &Edge) -> (i32, i32) {
 
 // Implement necessary traits for pathfinding crate
 impl Edge {
-    fn successors(&self, graph: &Vec<Vec<char>>) -> Vec<(Self, u32)> {
+    fn successors(&self, graph: &Vec<Vec<char>>) -> Vec<Self> {
         let mut successors = Vec::new();
-        let current_dir = compute_dir(self);
         for dir in VALID_DIR {
             let next_p = move_point(&self.end, dir);
             if next_p == self.start || !is_valid(&next_p) || graph[next_p.y][next_p.x] != '.' {
                 continue;
             }
-
-            let cost;
-            if dir == current_dir {
-                cost = 1;
-            } else {
-                cost = 1;
-            }
-
-            successors.push((
-                Edge {
-                    start: self.end.clone(),
-                    end: next_p.clone(),
-                },
-                cost,
-            ));
+            successors.push(Edge {
+                start: self.end.clone(),
+                end: next_p.clone(),
+            });
         }
         return successors;
     }
@@ -141,7 +130,7 @@ fn main() {
 
     let mut maze: Vec<Vec<_>> = vec![vec!['.'; GRID_SIZE + 1]; GRID_SIZE + 1];
 
-    let mut rocks: VecDeque<Point> = VecDeque::new();
+    let mut rocks: Vec<Point> = Vec::new();
     for line in reader.lines() {
         let line = line.expect("Unable to read line");
 
@@ -156,7 +145,7 @@ fn main() {
             y: point_xy[1],
         };
 
-        rocks.push_back(rock);
+        rocks.push(rock);
     }
 
     print_maze(&maze, &start, &end);
@@ -178,12 +167,9 @@ fn main() {
             continue;
         }
 
-        let result = prelude::astar(
+        let result = prelude::bfs(
             &start_edge,
             |p: &Edge| p.successors(&maze),
-            |p: &Edge| {
-                return ((end.x.abs_diff(p.end.x) + end.y.abs_diff(p.end.y)) / 3) as u32;
-            },
             |p: &Edge| p.end == end,
         );
         if result.is_none() {
@@ -191,51 +177,44 @@ fn main() {
         }
 
         let path = result.unwrap();
-        println!("len={}, cost={}", path.0.len(), path.1);
+        println!("len={}", path.len());
 
-        let walked_maze = walk_maze(&maze, &end, &path.0);
+        let walked_maze = walk_maze(&maze, &end, &path);
         print_maze(&walked_maze, &start, &end);
         break;
     }
 
-    maze = init_maze;
-    rocks = init_rocks;
-    loop {
-        let r = rocks.pop_front();
-        if r.is_none() {
-            panic!("wtf");
-        }
-
-        let rock = r.unwrap();
-        maze[rock.y][rock.x] = '#';
-
-        let mut no_sol = true;
-        for d in VALID_DIR {
-            let start_edge = Edge {
-                start: start.clone(),
-                end: move_point(&start, d),
-            };
-            if !is_valid(&start_edge.end) || maze[start_edge.end.y][start_edge.end.x] != '.' {
-                continue;
+    // Binary search through the solvable mazes until we find one unsolvable.
+    let (bad_rock_index, _) =
+        binary_search((0, ()), (init_rocks.len(), ()), |rocks_to_drop: usize| {
+            let mut test_maze = init_maze.clone();
+            for i in 0..rocks_to_drop {
+                let r = &init_rocks[i];
+                test_maze[r.y][r.x] = '#';
             }
-            let result = prelude::astar(
-                &start_edge,
-                |p: &Edge| p.successors(&maze),
-                |p: &Edge| {
-                    return ((end.x.abs_diff(p.end.x) + end.y.abs_diff(p.end.y)) / 3) as u32;
-                },
-                |p: &Edge| p.end == end,
-            );
 
-            if result.is_some() {
-                no_sol = false;
-                break;
+            for d in VALID_DIR {
+                let start_edge = Edge {
+                    start: start.clone(),
+                    end: move_point(&start, d),
+                };
+                if !is_valid(&start_edge.end)
+                    || test_maze[start_edge.end.y][start_edge.end.x] != '.'
+                {
+                    continue;
+                }
+                let result = prelude::bfs(
+                    &start_edge,
+                    |p: &Edge| p.successors(&test_maze),
+                    |p: &Edge| p.end == end,
+                );
+
+                if result.is_some() {
+                    return Direction::Low(());
+                }
             }
-        }
-        if no_sol {
-            print_maze(&maze, &start, &end);
-            println!("bad rock: {:?}", rock);
-            return;
-        }
-    }
+            return Direction::High(());
+        });
+
+    println!("bad rock: {:?}", init_rocks[bad_rock_index.0]);
 }

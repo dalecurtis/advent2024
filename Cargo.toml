@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-geo = "0.29.3"
+binary-search = "0.1.2"
 itertools = "0.13.0"
 pathfinding = "4.11.0"
 regex = "1.11.1"
