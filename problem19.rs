@@ -33,17 +33,17 @@ fn main() {
     let reader = BufReader::new(file);
     let lines: Vec<_> = reader.lines().map(|l| l.unwrap()).collect();
 
-    let mut patterns: Vec<_> = lines[0].split(',')
+    let mut patterns: Vec<_> = lines[0]
+        .split(',')
         .map(|s| s.trim())
         .filter(|s| !s.is_empty())
         .collect();
-    
 
     // Original part 1
     //
     // // Sort patterns by length (longest first)
     // patterns.sort_by(|a, b| b.len().cmp(&a.len()));
-    //  
+    //
     //
     // let regex_pattern = patterns
     //     .iter()
@@ -65,5 +65,8 @@ fn main() {
         }
     }
 
-    println!("possible matches: {}, total_comb={}", possible_matches, total_combinations);
+    println!(
+        "possible matches: {}, total_comb={}",
+        possible_matches, total_combinations
+    );
 }
