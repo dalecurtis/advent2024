@@ -1,31 +1,27 @@
-extern crate regex;
-
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use regex::Regex;
-
-use std::collections::HashMap;
+// extern crate regex;
+// use regex::Regex;
 
 fn count_possible_constructions(towels: &str, patterns: &[&str]) -> usize {
-    let mut dp: HashMap<usize, usize> = HashMap::new();
-    dp.insert(0, 1);
+    let n = towels.len();
+    let mut dp = vec![0; n + 1];
+    dp[0] = 1;
 
-    for i in 1..towels.len() + 1 {
+    for i in 1..n + 1 {
         for pattern in patterns {
             if i < pattern.len() {
                 continue;
             }
-
             let pattern_index = i - pattern.len();
             if towels[pattern_index..i] == **pattern {
-                let prev_count = *dp.get(&pattern_index).unwrap_or(&0);
-                *dp.entry(i).or_insert(0) += prev_count;
+                dp[i] += dp[pattern_index];
             }
         }
     }
 
-    return *dp.get(&towels.len()).unwrap_or(&0);
+    return dp[n];
 }
 
 fn main() {
@@ -33,7 +29,7 @@ fn main() {
     let reader = BufReader::new(file);
     let lines: Vec<_> = reader.lines().map(|l| l.unwrap()).collect();
 
-    let mut patterns: Vec<_> = lines[0]
+    let patterns: Vec<_> = lines[0]
         .split(',')
         .map(|s| s.trim())
         .filter(|s| !s.is_empty())
